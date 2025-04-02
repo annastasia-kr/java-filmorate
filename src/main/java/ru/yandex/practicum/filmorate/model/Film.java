@@ -38,7 +38,7 @@ public class Film {
     @DurationMin(message = "Длительность не валидна", minutes = 1)
     @JsonFormat(pattern = "MINUTES")
     @JsonSerialize(using = DurationSerializer.class)
-    @JsonDeserialize(using = DurationDeserializer.class )
+    @JsonDeserialize(using = DurationDeserializer.class)
     private Duration duration;
 
 }
