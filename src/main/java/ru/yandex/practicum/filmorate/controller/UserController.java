@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.marker.Marker;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@RequestBody @Valid User user) {
+    public User create(@RequestBody @Validated({Marker.OnCreate.class}) User user) {
         log.info("Получен HTTP-запрос на создание пользователя: {}", user);
         validateName(user.getName(), user);
 
@@ -39,7 +41,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody @Valid User user) {
+    public User update(@RequestBody @Validated({Marker.OnUpdate.class}) User user) {
         log.info("Получен HTTP-запрос на обновление пользователя: {}", user);
 
         Long id = user.getId();
@@ -53,7 +55,12 @@ public class UserController {
         }
         validateName(user.getName(), user);
 
-        User createdUser = new User(id, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
+        String email = user.getEmail();
+        if (email == null) {
+            email = users.get(id).getEmail();
+        }
+
+        User createdUser = new User(id, email, user.getLogin(), user.getName(), user.getBirthday());
         users.put(id, user);
 
         log.info("Успешно отработан HTTP-запрос на обновление пользователя: {}", user);
