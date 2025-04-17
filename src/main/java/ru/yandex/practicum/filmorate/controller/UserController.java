@@ -1,87 +1,82 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.marker.Marker;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
-    private final Map<Long, User> users = new HashMap<>();
+    private final UserService userService;
 
-    @GetMapping
-    public Collection<User> getAll() {
-        log.info("Получен HTTP-запрос на получение всех пользователей");
-        return new ArrayList<>(users.values());
+    @PutMapping("/users/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void addFriend(@PathVariable("id") long id, @PathVariable("friendId") long friendId) {
+        log.info("Получен HTTP-запрос на добавление в друзья пользователем с id = {}, пользователя с id = {}",
+                id, friendId);
+        userService.addFriend(id, friendId);
+        log.info("Успешно отработан HTTP-запрос на добавление в друзья пользователей");
     }
 
-    @PostMapping
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void removeFriend(@PathVariable("id") long id, @PathVariable("friendId") long friendId) {
+        log.info("Получен HTTP-запрос на удаление из друзей пользователем с id = {}, пользователя с id = {}",
+                id, friendId);
+        userService.removeFriend(id, friendId);
+        log.info("Успешно отработан HTTP-запрос на удаление из друзей пользователей");
+    }
+
+    @GetMapping("/users/{id}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<User> getFriends(@PathVariable("id") long id) {
+        log.info("Получен HTTP-запрос на получение списка друзей пользователя id = {}", id);
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<?> getCommonFriends(@PathVariable("id") long id, @PathVariable("otherId") long otherId) {
+        log.info("Получен HTTP-запрос на получение списка общих друзей пользователей id = {} и {}", id, otherId);
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @GetMapping("/users")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<User> getUsers() {
+        log.info("Получен HTTP-запрос на получение всех пользователей");
+        return userService.getUsers();
+    }
+
+    @PostMapping("/users")
+    @ResponseStatus(HttpStatus.CREATED)
     public User create(@RequestBody @Validated({Marker.OnCreate.class}) User user) {
         log.info("Получен HTTP-запрос на создание пользователя: {}", user);
-        validateName(user.getName(), user);
 
-        user.setId(getNextId());
-        User createdUser = new User(user.getId(), user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
-        users.put(user.getId(), user);
+        User createdUser = userService.create(user);
 
         log.info("Успешно отработан HTTP-запрос на создание пользователя: {}", user);
         return createdUser;
     }
 
-    @PutMapping
+    @PutMapping("/users")
+    @ResponseStatus(HttpStatus.OK)
     public User update(@RequestBody @Validated({Marker.OnUpdate.class}) User user) {
         log.info("Получен HTTP-запрос на обновление пользователя: {}", user);
 
-        Long id = user.getId();
-        if (id == null) {
-            log.error("Не задан id пользователя");
-            throw new ValidationException("Не задан id пользователя");
-        }
-        if (!users.containsKey(id)) {
-            log.error("Пользователь с id = {} не найден", id);
-            throw new UserNotFoundException("Пользователь не найден!");
-        }
-        validateName(user.getName(), user);
-
-        String email = user.getEmail();
-        if (email == null) {
-            email = users.get(id).getEmail();
-        }
-
-        User createdUser = new User(id, email, user.getLogin(), user.getName(), user.getBirthday());
-        users.put(id, user);
+        User updatedUser = userService.updateUser(user);
 
         log.info("Успешно отработан HTTP-запрос на обновление пользователя: {}", user);
-        return createdUser;
-    }
-
-    private void validateName(String name, User user) {
-        if (name == null || name.isBlank()) {
-            String login = user.getLogin();
-
-            log.warn("Имя {} не валидно. В качестве имени будет использован логин {}", name, login);
-            user.setName(login);
-        }
-    }
-
-    private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+        return updatedUser;
     }
 
 }
