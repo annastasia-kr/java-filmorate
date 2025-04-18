@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,7 +22,7 @@ public class UserController {
 
     @PutMapping("/users/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public void addFriend(@PathVariable("id") long id, @PathVariable("friendId") long friendId) {
+    public void addFriend(@PathVariable("id") @PositiveOrZero long id, @PathVariable("friendId") @PositiveOrZero long friendId) {
         log.info("Получен HTTP-запрос на добавление в друзья пользователем с id = {}, пользователя с id = {}",
                 id, friendId);
         userService.addFriend(id, friendId);
@@ -29,7 +31,7 @@ public class UserController {
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public void removeFriend(@PathVariable("id") long id, @PathVariable("friendId") long friendId) {
+    public void removeFriend(@PathVariable("id") @PositiveOrZero long id, @PathVariable("friendId") @PositiveOrZero long friendId) {
         log.info("Получен HTTP-запрос на удаление из друзей пользователем с id = {}, пользователя с id = {}",
                 id, friendId);
         userService.removeFriend(id, friendId);
@@ -38,14 +40,15 @@ public class UserController {
 
     @GetMapping("/users/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> getFriends(@PathVariable("id") long id) {
+    public Collection<User> getFriends(@PathVariable("id") @PositiveOrZero long id) {
         log.info("Получен HTTP-запрос на получение списка друзей пользователя id = {}", id);
         return userService.getFriends(id);
     }
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<?> getCommonFriends(@PathVariable("id") long id, @PathVariable("otherId") long otherId) {
+    public Collection<?> getCommonFriends(@PathVariable("id") @PositiveOrZero long id,
+                                          @PathVariable("otherId") @PositiveOrZero long otherId) {
         log.info("Получен HTTP-запрос на получение списка общих друзей пользователей id = {} и {}", id, otherId);
         return userService.getCommonFriends(id, otherId);
     }
@@ -78,5 +81,4 @@ public class UserController {
         log.info("Успешно отработан HTTP-запрос на обновление пользователя: {}", user);
         return updatedUser;
     }
-
 }

@@ -60,10 +60,7 @@ public class FilmService {
     }
 
     public Collection<?> mostPopular(int count) {
-        return filmStorage.getFilms().stream()
-                .sorted((film1, film2) -> film2.getLikedUsers().size() - film1.getLikedUsers().size())
-                .limit(count)
-                .toList();
+        return filmStorage.mostPopular(count);
     }
 
     public Collection<Film> getFilms() {

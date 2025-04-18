@@ -1,20 +1,17 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.EmailIsTakenException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-@Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
+    private final Set<String> usersEmail = new HashSet<>();
 
     @Override
     public Collection<User> getUsers() {
@@ -23,9 +20,13 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User create(User user) {
+        if (usersEmail.contains(user.getEmail())) {
+            throw new EmailIsTakenException("Данный email уже используется!");
+        }
         user.setId(getNextId());
         User createdUser = new User(user.getId(), user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(),
                 user.getFriends());
+        usersEmail.add(user.getEmail());
         users.put(user.getId(), user);
         return createdUser;
     }
@@ -33,12 +34,17 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User updateUser(User user) {
         if (!users.containsKey(user.getId())) {
-            log.error("Пользователь с id = {} не найден", user.getId());
             throw new UserNotFoundException("Пользователь не найден!");
         }
         String email = user.getEmail();
+        String lastEmail = users.get(user.getId()).getEmail();
         if (email == null) {
-            email = users.get(user.getId()).getEmail();
+            email = lastEmail;
+        } else if (!email.equals(lastEmail)) {
+            if (usersEmail.contains(email)) {
+                throw new EmailIsTakenException("Данный email уже используется!");
+            }
+            usersEmail.add(email);
         }
         User updatedUser = new User(user.getId(), email, user.getLogin(), user.getName(), user.getBirthday(),
                 user.getFriends());

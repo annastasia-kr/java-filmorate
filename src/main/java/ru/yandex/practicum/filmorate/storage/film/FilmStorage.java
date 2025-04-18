@@ -15,4 +15,5 @@ public interface FilmStorage {
 
     Film findById(Long id);
 
+    Collection<?> mostPopular(int count);
 }

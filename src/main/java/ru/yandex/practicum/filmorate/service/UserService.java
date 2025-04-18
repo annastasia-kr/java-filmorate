@@ -109,7 +109,6 @@ public class UserService {
         return optionalUser.get().getFriends().stream()
                 .map(userStorage::findById)
                 .toList();
-
     }
 
     private void validateName(String name, User user) {

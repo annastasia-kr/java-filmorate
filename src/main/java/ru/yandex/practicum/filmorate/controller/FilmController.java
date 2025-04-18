@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,7 @@ public class FilmController {
 
     @PutMapping("/films/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void addLike(@PathVariable("id") long id, @PathVariable("userId") long userId) {
+    public void addLike(@PathVariable("id") @PositiveOrZero long id, @PathVariable("userId") @PositiveOrZero long userId) {
         log.info("Получен HTTP-запрос на добавление лайка фильму с id = {}", id);
         filmService.addLike(id, userId);
         log.info("Успешно отработан HTTP-запрос на добавление лайка");
@@ -27,7 +29,7 @@ public class FilmController {
 
     @DeleteMapping("/films/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void removeLike(@PathVariable("id") long id, @PathVariable("userId") long userId) {
+    public void removeLike(@PathVariable("id") @PositiveOrZero long id, @PathVariable("userId") @PositiveOrZero long userId) {
         log.info("Получен HTTP-запрос на удаление лайка фильма с id = {}", id);
         filmService.removeLike(id, userId);
         log.info("Успешно отработан HTTP-запрос на удаление лайка");
@@ -35,7 +37,7 @@ public class FilmController {
 
     @GetMapping("/films/popular")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<?> mostPopular(@RequestParam(defaultValue = "10") int count) {
+    public Collection<?> mostPopular(@RequestParam(defaultValue = "10") @PositiveOrZero int count) {
         log.info("Получен HTTP-запрос на вывод первых {} наиболее популярных фильмов", count);
         return filmService.mostPopular(count);
     }
