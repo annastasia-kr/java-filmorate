@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -13,9 +14,15 @@ import lombok.NoArgsConstructor;
 
 import org.hibernate.validator.constraints.time.DurationMin;
 import ru.yandex.practicum.filmorate.deserializer.DurationSerializer;
+import ru.yandex.practicum.filmorate.model.enumeration.Genre;
+import ru.yandex.practicum.filmorate.model.enumeration.RatingMPA;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -41,4 +48,18 @@ public class Film {
     @JsonDeserialize(using = DurationDeserializer.class)
     private Duration duration;
 
+    @JsonIgnore
+    private Set<Long> likedUsers = new HashSet<>();
+
+    private List<Genre> genres = new ArrayList<>();
+
+    private RatingMPA filmRating;
+
+    public void addLike(Long userId) {
+        this.likedUsers.add(userId);
+    }
+
+    public void removeLike(Long userId) {
+        this.likedUsers.remove(userId);
+    }
 }
