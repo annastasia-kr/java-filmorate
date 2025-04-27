@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import java.util.Collection;
 
 @Slf4j
+@Validated
 @RestController
 @RequiredArgsConstructor
 public class UserController {

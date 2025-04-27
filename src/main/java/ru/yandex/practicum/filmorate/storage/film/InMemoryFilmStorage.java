@@ -23,7 +23,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film createFilm(Film film) {
         film.setId(getNextId());
         Film createdFilm = new Film(film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getDuration(), film.getLikedUsers());
+                film.getDuration(), film.getLikedUsers(), film.getGenres(), film.getFilmRating());
         films.put(film.getId(), film);
         return createdFilm;
     }
@@ -34,7 +34,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new FilmNotFoundException("Фильм не найден!");
         }
         Film updatedFilm = new Film(film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getDuration(), film.getLikedUsers());
+                film.getDuration(), film.getLikedUsers(), film.getGenres(), film.getFilmRating());
         films.put(film.getId(), film);
         return updatedFilm;
     }
@@ -45,7 +45,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         Film foundedFilm = films.get(id);
         return new Film(foundedFilm.getId(), foundedFilm.getName(), foundedFilm.getDescription(), foundedFilm.getReleaseDate(),
-                foundedFilm.getDuration(), foundedFilm.getLikedUsers());
+                foundedFilm.getDuration(), foundedFilm.getLikedUsers(), foundedFilm.getGenres(), foundedFilm.getFilmRating());
     }
 
     @Override

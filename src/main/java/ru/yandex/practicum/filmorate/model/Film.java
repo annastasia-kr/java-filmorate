@@ -14,10 +14,14 @@ import lombok.NoArgsConstructor;
 
 import org.hibernate.validator.constraints.time.DurationMin;
 import ru.yandex.practicum.filmorate.deserializer.DurationSerializer;
+import ru.yandex.practicum.filmorate.model.enumeration.Genre;
+import ru.yandex.practicum.filmorate.model.enumeration.RatingMPA;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -46,6 +50,10 @@ public class Film {
 
     @JsonIgnore
     private Set<Long> likedUsers = new HashSet<>();
+
+    private List<Genre> genres = new ArrayList<>();
+
+    private RatingMPA filmRating;
 
     public void addLike(Long userId) {
         this.likedUsers.add(userId);
